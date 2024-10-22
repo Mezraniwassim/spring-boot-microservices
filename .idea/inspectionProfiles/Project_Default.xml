@@ -16,5 +16,6 @@
         </set>
       </option>
     </inspection_tool>
+    <inspection_tool class="JsonStandardCompliance" enabled="false" level="ERROR" enabled_by_default="false" />
   </profile>
 </component>
