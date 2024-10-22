@@ -12,7 +12,7 @@ pipeline {
             steps {
                 script {
                     dir('/home/wassim/IdeaProjects/spring-boot-microservices') { // Change this to the correct path
-                        sh 'mvn clean package -DskipTests'
+                        sh 'mvn package'
                     }
                 }
             }
