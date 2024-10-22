@@ -1,10 +1,19 @@
 pipeline {
     agent any
     stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/Mezraniwassim/spring-boot-microservices.git']]])
+                }
+            }
+        }
         stage('Build') {
             steps {
                 script {
-                    sh 'mvn clean package -DskipTests'
+                    dir('/home/wassim/IdeaProjects/spring-boot-microservices') { // Change this to the correct path
+                        sh 'mvn clean package -DskipTests'
+                    }
                 }
             }
         }
