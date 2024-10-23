@@ -1,38 +1,89 @@
 pipeline {
     agent any
-    stages {
-        stage('Checkout') {
-            steps {
-                script {
-                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/Mezraniwassim/spring-boot-microservices.git']]])
-                }
-            }
-        }
-        stage('Build') {
-            steps {
-                script {
-                    dir('/home/wassim/IdeaProjects/spring-boot-microservices') { // Change this to the correct path
-                        sh 'mvn clean package -DskipTests'
-                    }
-                }
-            }
-        }
-        stage('Dockerize') {
-            steps {
-                script {
-                    // List of microservices
-                    def services = ['auth-service', 'user-service', 'job-service', 'notification-service', 'file-storage-service']
 
-                    for (service in services) {
-                        sh """
-                        cd ${service}
-                        docker build -t mezrani/spring/${service}:latest .
-                        docker push mezrani/spring/${service}:latest
-                        cd ..
-                        """
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git url: 'https://github.com/Mezraniwassim/spring-boot-microservices.git', 
+                    branch: 'main'
+            }
+        }
+
+        stage('Build Microservices') {
+            parallel {
+                stage('Build Eureka Server') {
+                    steps {
+                        dir('eureka-server') {
+                            sh 'mvn clean install -DskipTests'
+                        }
+                    }
+                }
+
+                stage('Build Gateway') {
+                    steps {
+                        dir('gateway') {
+                            sh 'mvn clean install -DskipTests'
+                        }
+                    }
+                }
+
+                stage('Build Config Server') {
+                    steps {
+                        dir('config-server') {
+                            sh 'mvn clean install -DskipTests'
+                        }
+                    }
+                }
+
+                stage('Build Auth Service') {
+                    steps {
+                        dir('auth-service') {
+                            sh 'mvn clean install -DskipTests'
+                        }
+                    }
+                }
+
+                stage('Build User Service') {
+                    steps {
+                        dir('user-service') {
+                            sh 'mvn clean install -DskipTests'
+                        }
+                    }
+                }
+
+                stage('Build Job Service') {
+                    steps {
+                        dir('job-service') {
+                            sh 'mvn clean install -DskipTests'
+                        }
+                    }
+                }
+
+                stage('Build Notification Service') {
+                    steps {
+                        dir('notification-service') {
+                            sh 'mvn clean install -DskipTests'
+                        }
+                    }
+                }
+
+                stage('Build File Storage Service') {
+                    steps {
+                        dir('file-storage') {
+                            sh 'mvn clean install -DskipTests'
+                        }
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
         }
     }
 }
